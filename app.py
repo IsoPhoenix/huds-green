@@ -49,6 +49,10 @@ def post_something():
 def index():
     return render_template("index.html")
 
+# @app.route("/index", methods=["GET"])
+# def form():
+#     return render_template("layout.html")
+
 if __name__ == '__main__':
     # Threaded option to enable multiple instances for multiple user access support
     app.run(threaded=True, port=5000)
