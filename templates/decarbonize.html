@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+
+{% block title %}<title>Decarbonize my Meal</title>{% endblock %}
+
+{% block head %}
+{{ super() }}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" class="mx-auto d-block" alt="logo" height="200">
+        <h1 class="page-title">Decarbonize my Meal</h1>
+    </div>
+</div>
+
+<div class="container">
+    <h1>Today's Menu</h1>
+    <p>Welcome on my awesome homepage.</p>
+</div>
+{% endblock %}
