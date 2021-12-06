@@ -15,7 +15,85 @@
 </div>
 
 <div class="container">
-    <h1>Today's Menu</h1>
-    <p>Welcome on my awesome homepage.</p>
+    <p>Always wanted to reduce your carbon footprint at meals, but worried about inadequate protein intake? Enter your
+        age, weight, sex, and level of activity, and we’ll recommend a meal for you with the minimum carbon footprint,
+        while making sure you get the nutrition you need. Eat HUDS, reduce waste, and reduce your carbon footprint.</p>
+
+    <form action="/decarbonize" method="post">
+        <div class="form-group">
+            <label for="meal">What meal are you eating today?</label>
+            <select class="form-control" id="meal">
+                <option>Lunch</option>
+                <option>Dinner</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="mealCount">How many meals do you plan on eating today?</label>
+            <select class="form-control" id="mealCount">
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="age">What is your age?</label>
+            <select class="form-control" id="age">
+                <option>&lt;18</option>
+                <option>19</option>
+                <option>20</option>
+                <option>21</option>
+                <option>22</option>
+                <option>23</option>
+                <option>&gt;23</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="weight">What is your weight (in pounds)?</label>
+            <select class="form-control" id="weight">
+                <option>&lt;100</option>
+                <option>100-110</option>
+                <option>110-120</option>
+                <option>120-130</option>
+                <option>130-140</option>
+                <option>140-150</option>
+                <option>140-150</option>
+                <option>150-160</option>
+                <option>160-170</option>
+                <option>170-180</option>
+                <option>180-190</option>
+                <option>190-200</option>
+                <option>&gt;200</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="gender">What is your gender?</label>
+            <select class="form-control" id="gender">
+                <option value="1">Male</option>
+                <option value="2">Female</option>
+                <option value="3">Nonbinary</option>
+                <option value="0">Prefer not to say</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="activity">What is your average level of physical activity?</label>
+            <select class="form-control" id="activity">
+                <option>Low</option>
+                <option>Moderate</option>
+                <option>High</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="preferences">Do you have any dietary preferences?</label>
+            <select class="form-control" id="preferences">
+                <option value="0" selected>None</option>
+                <option value="1">Vegan</option>
+                <option value="2">Vegetarian</option>
+                <option value="3">I usually eat meat, but I’m willing to eat only vegetarian proteins today</option>
+                <option value="4">I usually eat meat, but I’m willing to avoid red meats today</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
 </div>
 {% endblock %}

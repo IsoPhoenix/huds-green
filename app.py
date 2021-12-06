@@ -2,7 +2,7 @@
 # https://stackabuse.com/deploying-a-flask-application-to-heroku/
 
 # app.py
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, redirect
 app = Flask(__name__)
 
 @app.route('/getmsg/', methods=['GET'])
@@ -49,9 +49,13 @@ def post_something():
 def index():
     return render_template("index.html")
 
-@app.route("/decarbonize", methods=["GET"])
+@app.route("/decarbonize", methods=["GET", "POST"])
 def decarbonize():
-    return render_template("decarbonize.html")
+    if request.method == "GET":
+        return render_template("decarbonize.html")
+    else:
+        # Do stuff
+        return redirect("/")
 
 if __name__ == '__main__':
     # Threaded option to enable multiple instances for multiple user access support
