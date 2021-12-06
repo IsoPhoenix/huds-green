@@ -9,6 +9,8 @@ import pandas as pd
 app = Flask(__name__)
 
 def daily_menu_df(date):
+
+    # TODO: Implement auto date query
     url = "https://go.apis.huit.harvard.edu/ats/dining/v3/recipes?locationId=05&date={}".format(date)
 
     payload={}
