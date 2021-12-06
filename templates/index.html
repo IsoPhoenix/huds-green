@@ -29,36 +29,16 @@
     </div>
 
     <h2>Today's Menu:</h2>
+    {% for index, row in menu.iterrows() %}
     <div class="menu-section">
-        <h3>Section title</h3>
+        <h3>{{ row["Menu_Category_Name"] }}</h3>
         <ul class="list-group">
-            <li class="list-group-item">Cras justo odio</li>
-            <li class="list-group-item">Dapibus ac facilisis in</li>
-            <li class="list-group-item">Morbi leo risus</li>
-            <li class="list-group-item">Porta ac consectetur ac</li>
-            <li class="list-group-item">Vestibulum at eros</li>
+            {% for item in row["Recipe_Print_As_Name"] %}
+            <li class="list-group-item">{{ item }}</li>
+            {% endfor %}
         </ul>
     </div>
-    <div class="menu-section">
-        <h3>Section title</h3>
-        <ul class="list-group">
-            <li class="list-group-item">Cras justo odio</li>
-            <li class="list-group-item">Dapibus ac facilisis in</li>
-            <li class="list-group-item">Morbi leo risus</li>
-            <li class="list-group-item">Porta ac consectetur ac</li>
-            <li class="list-group-item">Vestibulum at eros</li>
-        </ul>
-    </div>
-    <div class="menu-section">
-        <h3>Section title</h3>
-        <ul class="list-group">
-            <li class="list-group-item">Cras justo odio</li>
-            <li class="list-group-item">Dapibus ac facilisis in</li>
-            <li class="list-group-item">Morbi leo risus</li>
-            <li class="list-group-item">Porta ac consectetur ac</li>
-            <li class="list-group-item">Vestibulum at eros</li>
-        </ul>
-    </div>
+    {% endfor %}
 
 
 </div>

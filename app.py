@@ -4,8 +4,27 @@
 # app.py
 from flask import Flask, request, jsonify, render_template, redirect
 import requests
+import pandas as pd
 
 app = Flask(__name__)
+
+def daily_menu_df(date):
+    url = "https://go.apis.huit.harvard.edu/ats/dining/v3/recipes?locationId=05&date={}".format(date)
+
+    payload={}
+    headers = {
+        'x-api-key': '8yikrfDnvJGbKKlz3pVPvAlANGPkTGza'
+    }
+
+    response = requests.request("GET", url, headers=headers, data=payload)
+
+    dataframe = pd.DataFrame.from_dict(response.json())
+
+    # print(response.json())
+
+    output = dataframe.loc[dataframe['Meal_Name'].str.contains("Lunch Entrees")]
+
+    return output
 
 @app.route('/getmsg/', methods=['GET'])
 def respond():
@@ -49,7 +68,17 @@ def post_something():
 # A welcome message to test our server
 @app.route('/')
 def index():
-    return render_template("index.html")
+
+    menu_df = daily_menu_df("12/13/2021")
+    grouped = menu_df.groupby("Menu_Category_Name")
+    grouped_lists = grouped["Recipe_Print_As_Name"].apply(list).reset_index()
+
+    grouped_lists = grouped_lists.replace("eNTREES", "Entrees")
+    grouped_lists = grouped_lists.replace("HALAL", "Halal")
+
+    grouped_lists = grouped_lists.iloc[::-1]
+
+    return render_template("index.html", menu=grouped_lists)
 
 @app.route("/decarbonize", methods=["GET", "POST"])
 def decarbonize():
@@ -59,21 +88,19 @@ def decarbonize():
         # Do stuff
         return redirect("/")
 
-@app.route("/test", methods=["GET"])
-def test():
-    url = "https://go.apis.huit.harvard.edu/ats/dining/v3/recipes"
+# @app.route("/test", methods=["GET"])
+# def test():
+#     url = "https://go.apis.huit.harvard.edu/ats/dining/v3/events?locationId=05&date=12/13/2021"
 
-    payload={}
-    headers = {
-        'x-api-key': '8yikrfDnvJGbKKlz3pVPvAlANGPkTGza'
-    }
+#     payload={}
+#     headers = {
+#         'x-api-key': '8yikrfDnvJGbKKlz3pVPvAlANGPkTGza'
+#     }
 
-    response = requests.request("GET", url, headers=headers, data=payload)
+#     response = requests.request("GET", url, headers=headers, data=payload)
 
-    print(response.text)
-    print(response.status_code)
-    print(response.json())
-    return redirect("/")
+#     print(response.json())
+#     return redirect("/")
 
 
 if __name__ == '__main__':
