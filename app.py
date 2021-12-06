@@ -3,6 +3,8 @@
 
 # app.py
 from flask import Flask, request, jsonify, render_template, redirect
+import requests
+
 app = Flask(__name__)
 
 @app.route('/getmsg/', methods=['GET'])
@@ -56,6 +58,23 @@ def decarbonize():
     else:
         # Do stuff
         return redirect("/")
+
+@app.route("/test", methods=["GET"])
+def test():
+    url = "https://go.apis.huit.harvard.edu/ats/dining/v3/recipes"
+
+    payload={}
+    headers = {
+        'x-api-key': '8yikrfDnvJGbKKlz3pVPvAlANGPkTGza'
+    }
+
+    response = requests.request("GET", url, headers=headers, data=payload)
+
+    print(response.text)
+    print(response.status_code)
+    print(response.json())
+    return redirect("/")
+
 
 if __name__ == '__main__':
     # Threaded option to enable multiple instances for multiple user access support
