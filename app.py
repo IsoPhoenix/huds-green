@@ -59,15 +59,36 @@ def get_locations(date):
 
     return grouped_lists
 
-@app.route('/')
+def get_location_name(locationNumber):
+    url = "https://go.apis.huit.harvard.edu/ats/dining/v3/locations"
+
+    payload={}
+    headers = {
+        'x-api-key': '8yikrfDnvJGbKKlz3pVPvAlANGPkTGza'
+    }
+
+    response = requests.request("GET", url, headers=headers, data=payload)
+
+    dataframe = pd.DataFrame.from_dict(response.json())
+
+    row_match = dataframe.loc[dataframe['location_number'] == locationNumber, "location_name"].values[0]
+
+    return row_match
+
+@app.route('/', methods=["GET", "POST"])
 def index():
 
-    # Format menu DF into grouped list by dish category
-    lunch_df = menu_grouped("12/13/2021", "Lunch")
-    dinner_df = menu_grouped("12/13/2021", "Dinner")
+    if request.method == "GET":
+        # Format menu DF into grouped list by dish category
+        lunch_df = menu_grouped("12/13/2021", "Lunch")
+        dinner_df = menu_grouped("12/13/2021", "Dinner")
 
-    return render_template("index.html", lunch=lunch_df, dinner=dinner_df, locationList = get_locations("12/13/2021"))
+        return render_template("index.html", lunch=lunch_df, dinner=dinner_df, locationList = get_locations("12/13/2021"), currentLocation=get_location_name("05"))
+    else:
+        lunch_df = menu_grouped("12/13/2021", "Lunch")
+        dinner_df = menu_grouped("12/13/2021", "Dinner")
 
+        return render_template("index.html", lunch=lunch_df, dinner=dinner_df, locationList = get_locations("12/13/2021"), currentLocation=get_location_name(request.form.get("selected_location")))
 @app.route("/decarbonize", methods=["GET", "POST"])
 def decarbonize():
     if request.method == "GET":
