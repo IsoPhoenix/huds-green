@@ -41,7 +41,7 @@ def menu_grouped(date, meal):
 
     return grouped_lists
 
-def carbon_friendly_menu(date):
+def carbon_friendly_menu(date, meal):
     # TODO: Implement auto date query
     url = "https://go.apis.huit.harvard.edu/ats/dining/v3/recipes?locationId=05&date={}".format(date)
 
@@ -53,6 +53,8 @@ def carbon_friendly_menu(date):
     response = requests.request("GET", url, headers=headers, data=payload)
 
     menu_df = pd.DataFrame.from_dict(response.json())
+
+    menu_df = menu_df.loc[menu_df['Meal_Name'].str.contains(meal)]
 
     menu_df["Protein"] = menu_df["Protein"].str[:-1]
 
@@ -110,17 +112,19 @@ def index():
 
     if request.method == "GET":
         # Format menu DF into grouped list by dish category
-        carbon_df = carbon_friendly_menu("12/13/2021")
+        carbon_df_lunch = carbon_friendly_menu("12/13/2021", "Lunch")
+        carbon_df_dinner = carbon_friendly_menu("12/13/2021", "Dinner")
         lunch_df = menu_grouped("12/13/2021", "Lunch")
         dinner_df = menu_grouped("12/13/2021", "Dinner")
 
-        return render_template("index.html", carbon=carbon_df, lunch=lunch_df, dinner=dinner_df, locationList = get_locations("12/13/2021"), currentLocation=get_location_name("05"))
+        return render_template("index.html", carbon_lunch=carbon_df_lunch, carbon_dinner=carbon_df_dinner, lunch=lunch_df, dinner=dinner_df, locationList = get_locations("12/13/2021"), currentLocation=get_location_name("05"))
     else:
-        carbon_df = carbon_friendly_menu("12/13/2021")
+        carbon_df_lunch = carbon_friendly_menu("12/13/2021", "Lunch")
+        carbon_df_dinner = carbon_friendly_menu("12/13/2021", "Dinner")
         lunch_df = menu_grouped("12/13/2021", "Lunch")
         dinner_df = menu_grouped("12/13/2021", "Dinner")
 
-        return render_template("index.html", carbon=carbon_df, lunch=lunch_df, dinner=dinner_df, locationList = get_locations("12/13/2021"), currentLocation=get_location_name(request.form.get("selected_location")))
+        return render_template("index.html", carbon_lunch=carbon_df_lunch, carbon_dinner=carbon_df_dinner, lunch=lunch_df, dinner=dinner_df, locationList = get_locations("12/13/2021"), currentLocation=get_location_name(request.form.get("selected_location")))
 @app.route("/decarbonize", methods=["GET", "POST"])
 def decarbonize():
     if request.method == "GET":
