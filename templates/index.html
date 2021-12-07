@@ -16,14 +16,16 @@
 
 <div class="container">
     <div class="location-section">
-        <h2 style="text-align: center">Location: {{ currentLocation }}</h2>
 
+        <!-- Display selected HUDS location from the currentLocation variable -->
+        <h2 style="text-align: center">Location: {{ currentLocation }}</h2>
 
         <div class="d-flex justify-content-center">
             <form action="/" method="post">
                 <select onchange="this.form.submit()" name="selected_location" id="location-dropdown"
                     class="form-select form-select-sm" aria-label=".form-select-sm example">
                     <option selected>Change location</option>
+                    <!-- Generate select options from the locationList dataframe containing currently active HUDS locations -->
                     {% for index, row in locationList.iterrows() %}
                     <option value="{{ row['Location_Number'] }}">{{ row["Location_Name"] }}</option>
                     {% endfor %}
@@ -61,6 +63,7 @@
             <div class="tab-content" id="pills-tabContent">
                 <div class="tab-pane fade show active" id="menu-lunch-carbon" role="tabpanel"
                     aria-labelledby="menu-lunch-carbon-tab">
+                    <!-- Generate menu sections with corresponding menu items from the appropriate dataframe -->
                     {% for index, row in carbon_lunch.iterrows() %}
                     <div class="menu-section">
                         <h4>{{ row["Menu_Category_Name"].title() }}</h4>
@@ -73,6 +76,7 @@
                     {% endfor %}
                 </div>
                 <div class="tab-pane fade" id="menu-lunch-all" role="tabpanel" aria-labelledby="menu-lunch-all-tab">
+                    <!-- Generate menu sections with corresponding menu items from the appropriate dataframe -->
                     {% for index, row in lunch.iterrows() %}
                     <div class="menu-section">
                         <h4>{{ row["Menu_Category_Name"].title() }}</h4>
@@ -102,6 +106,7 @@
             <div class="tab-content" id="pills-tabContent">
                 <div class="tab-pane fade show active" id="menu-dinner-carbon" role="tabpanel"
                     aria-labelledby="menu-dinner-carbon-tab">
+                    <!-- Generate menu sections with corresponding menu items from the appropriate dataframe -->
                     {% for index, row in carbon_dinner.iterrows() %}
                     <div class="menu-section">
                         <h4>{{ row["Menu_Category_Name"].title() }}</h4>
@@ -114,6 +119,7 @@
                     {% endfor %}
                 </div>
                 <div class="tab-pane fade" id="menu-dinner-all" role="tabpanel" aria-labelledby="menu-dinner-all-tab">
+                    <!-- Generate menu sections with corresponding menu items from the appropriate dataframe -->
                     {% for index, row in dinner.iterrows() %}
                     <div class="menu-section">
                         <h4>{{ row["Menu_Category_Name"].title() }}</h4>
@@ -126,19 +132,7 @@
                     {% endfor %}
                 </div>
             </div>
-            <!-- {% for index, row in dinner.iterrows() %}
-            <div class="menu-section">
-                <h4>{{ row["Menu_Category_Name"] }}</h4>
-                <ul class="list-group">
-                    {% for item in row["Recipe_Print_As_Name"] %}
-                    <li class="list-group-item">{{ item }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-            {% endfor %} -->
         </div>
     </div>
-
-
 </div>
 {% endblock %}

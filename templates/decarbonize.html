@@ -4,9 +4,19 @@
 
 {% block head %}
 {{ super() }}
+
+<!-- On form submission, ensure the weight field has a positive number -->
+<script>
+    function formSubmit() {
+        if (!(document.getElementById('weight').value > 0)) {
+            alert('Please input your weight as a positive number.');
+            return false;
+        }
+    }
+</script>
 {% endblock %}
 
-<!--Displays unsubmitted form for user preferences on Decarbonize My Meal-->
+<!--Display unsubmitted form for user preferences on Decarbonize My Meal-->
 {% block content %}
 <div class="container">
     <div class="page-header">
@@ -20,7 +30,7 @@
         Share with us your preferences, and we’ll recommend a meal for you with the minimum carbon footprint,
         while making sure you get the nutrition you need. Eat HUDS, reduce waste, and reduce your carbon footprint.</p>
 
-    <form action="/decarbonize" method="post">
+    <form action="/decarbonize" onSubmit="return formSubmit();" method="post">
         <div class="mb-3">
             <label class="form-label" for="meal">What meal are you eating today?</label>
             <select name="meal" class="form-control" id="meal">
@@ -32,6 +42,7 @@
             <label class="form-label" for="selected_location">Select your dining location:</label>
             <select name="selected_location" id="selected_location" class="form-select"
                 aria-label="Default select example">
+                <!-- Generate select options from the locationList df containing the list of active HUDS locations -->
                 {% for index, row in locationList.iterrows() %}
                 <option value="{{ row['Location_Number'][0] }}">{{ row["Location_Name"] }}</option>
                 {% endfor %}
