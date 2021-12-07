@@ -28,16 +28,17 @@
 
     </div>
     <div class="meal-section">
-        <h3>Carbon-Friendly Meal of the Day:</h3>
+        <h3>Carbon-Friendly, Protein-Friendly Options for the Day:</h3>
+        {% for index, row in carbon.iterrows() %}
         <div class="menu-section">
+            <h4>{{ row["Menu_Category_Name"] }}</h4>
             <ul class="list-group">
-                <li class="list-group-item">Cras justo odio</li>
-                <li class="list-group-item">Dapibus ac facilisis in</li>
-                <li class="list-group-item">Morbi leo risus</li>
-                <li class="list-group-item">Porta ac consectetur ac</li>
-                <li class="list-group-item">Vestibulum at eros</li>
+                {% for item in row["Recipe_Print_As_Name"] %}
+                <li class="list-group-item">{{ item }}</li>
+                {% endfor %}
             </ul>
         </div>
+        {% endfor %}
     </div>
 
     <h2>Today's Menu:</h2>
