@@ -5,8 +5,13 @@
 from flask import Flask, request, jsonify, render_template, redirect
 import requests
 import pandas as pd
+from datetime import date
 
 app = Flask(__name__)
+
+def get_date():
+    current_date = date.today()
+    return current_date.strftime("%m/%d/%Y")
 
 # Return dataframe containing menu items 
 def daily_menu_df(date, meal, doCarbonFriendly, locationId):
@@ -25,7 +30,7 @@ def daily_menu_df(date, meal, doCarbonFriendly, locationId):
 
     # print(response.json())
 
-    menu_df = dataframe.loc[dataframe['Meal_Name'].str.contains(meal)]
+    menu_df = dataframe.loc[dataframe['Meal_Name'].str.contains(meal, case=False)]
 
     # Carbon friendly parsing
     if doCarbonFriendly:
@@ -49,9 +54,9 @@ def grouped_menu(date, meal, doCarbonFriendly, locationId):
 
     return grouped_lists
 
-def vegetarian(date, meal, weight, num_meals):
-    menu_df = daily_menu_df(date, meal, True, "05")
-    menu_df = menu_df.loc[menu_df['Meal_Name'].str.contains(meal)]
+def vegetarian(date, meal, weight, num_meals, locationId):
+    menu_df = daily_menu_df(date, meal, True, locationId)
+    menu_df = menu_df.loc[menu_df['Meal_Name'].str.contains(meal, case=False)]
     menu_df = menu_df.sort_values(by='Protein', ascending=False)
 
     protein = 0
@@ -66,12 +71,15 @@ def vegetarian(date, meal, weight, num_meals):
     vgt_df["Calories"] = pd.to_numeric(vgt_df["Calories"])
     vgt_df['calorie total'] = vgt_df['Calories'].sum()
 
+    vgt_df = vgt_df.replace("eNTREES", "Entrees")
+    vgt_df = vgt_df.replace("HALAL", "Halal")
+
     return vgt_df
 
-def vegan(date, meal, weight, num_meals):
-    menu_df = daily_menu_df(date, meal, True, "05")
+def vegan(date, meal, weight, num_meals, locationId):
+    menu_df = daily_menu_df(date, meal, True, locationId)
     menu_df = menu_df.loc[menu_df['Recipe_Web_Codes'].str.contains("VGN")]
-    menu_df = menu_df.loc[menu_df['Meal_Name'].str.contains(meal)]
+    menu_df = menu_df.loc[menu_df['Meal_Name'].str.contains(meal, case=False)]
     menu_df = menu_df.sort_values(by='Protein', ascending=False)
 
     protein = 0
@@ -85,13 +93,18 @@ def vegan(date, meal, weight, num_meals):
     vgn_df=menu_df.head(length)
     vgn_df["Calories"] = pd.to_numeric(vgn_df["Calories"])
     vgn_df['calorie total'] = vgn_df['Calories'].sum()
+
+    vgn_df = vgn_df.replace("eNTREES", "Entrees")
+    vgn_df = vgn_df.replace("HALAL", "Halal")
 
     return vgn_df
 
-def chicken(date, meal, weight, num_meals):
-    menu_df = daily_menu_df(date, meal, False, "05")
-    menu_df = menu_df.loc[(menu_df['Recipe_Web_Codes'].str.contains("VGT")) | (menu_df['Recipe_Print_As_Name'].str.contains("Chicken")) | (menu_df['Recipe_Print_As_Name'].str.contains("Cod")) | (menu_df['Recipe_Print_As_Name'].str.contains("Salmon"))]
-    menu_df = menu_df.loc[menu_df['Meal_Name'].str.contains(meal)]
+def chicken(date, meal, weight, num_meals, locationId):
+    menu_df = daily_menu_df(date, meal, False, locationId)
+    menu_df["Protein"] = menu_df["Protein"].str[:-1]
+    menu_df["Protein"] = pd.to_numeric(menu_df["Protein"])
+    menu_df = menu_df.loc[(menu_df['Recipe_Web_Codes'].str.contains("VGT")) | (menu_df['Recipe_Print_As_Name'].str.contains("Chicken", case=False)) | (menu_df['Recipe_Print_As_Name'].str.contains("Cod", case=False)) | (menu_df['Recipe_Print_As_Name'].str.contains("Salmon", case=False))]
+    menu_df = menu_df.loc[menu_df['Meal_Name'].str.contains(meal, case=False)]
     menu_df = menu_df.sort_values(by='Protein', ascending=False)
 
     protein = 0
@@ -105,6 +118,9 @@ def chicken(date, meal, weight, num_meals):
     vgn_df=menu_df.head(length)
     vgn_df["Calories"] = pd.to_numeric(vgn_df["Calories"])
     vgn_df['calorie total'] = vgn_df['Calories'].sum()
+
+    vgn_df = vgn_df.replace("eNTREES", "Entrees")
+    vgn_df = vgn_df.replace("HALAL", "Halal")
 
     return vgn_df
 
@@ -151,28 +167,39 @@ def index():
         selected_location = request.form.get("selected_location")
 
 
-    carbon_df_lunch = grouped_menu("12/13/2021", "Lunch", True, selected_location)
-    carbon_df_dinner = grouped_menu("12/13/2021", "Dinner", True, selected_location)
-    lunch_df = grouped_menu("12/13/2021", "Lunch", False, selected_location)
-    dinner_df = grouped_menu("12/13/2021", "Dinner", False, selected_location)
+    carbon_df_lunch = grouped_menu(get_date(), "Lunch", True, selected_location)
+    carbon_df_dinner = grouped_menu(get_date(), "Dinner", True, selected_location)
+    lunch_df = grouped_menu(get_date(), "Lunch", False, selected_location)
+    dinner_df = grouped_menu(get_date(), "Dinner", False, selected_location)
 
-    return render_template("index.html", carbon_lunch=carbon_df_lunch, carbon_dinner=carbon_df_dinner, lunch=lunch_df, dinner=dinner_df, locationList = get_locations("12/13/2021"), currentLocation=get_location_name(selected_location))
+    return render_template("index.html", carbon_lunch=carbon_df_lunch, carbon_dinner=carbon_df_dinner, lunch=lunch_df, dinner=dinner_df, locationList = get_locations(get_date()), currentLocation=get_location_name(selected_location))
 
 @app.route("/decarbonize", methods=["GET", "POST"])
 def decarbonize():
     if request.method == "GET":
-        return render_template("decarbonize.html", locationList = get_locations("12/13/2021"))
+        return render_template("decarbonize.html", locationList = get_locations(get_date()))
     else:
         # Get recommended protein intake
         meal = request.form.get("meal")
-        weight = request.form.get("weight")
-        num_meals = request.form.get("mealCount")
+        weight = int(request.form.get("weight"))
+        num_meals = int(request.form.get("mealCount"))
+        prefs = request.form.get("preferences")
+        location = request.form.get("selected_location")
 
-        if request.form.get("preferences") ==
-            vegetarian("12/13/2021", meal, weight, num_meals)
+        if prefs == "1" or prefs == "2":
+            carbon_df = vegetarian(get_date(), meal, weight, num_meals, location)
 
+        elif prefs == "0":
+            carbon_df = vegan(get_date(), meal, weight, num_meals, location)
 
-        return render_template("decarbonized_display.html")
+        elif prefs == "3":
+            carbon_df = chicken(get_date(), meal, weight, num_meals, location)
+
+        return render_template("decarbonized_display.html", carbon_meal = carbon_df)
+
+@app.route("/about")
+def about():
+    return render_template("about.html")
 
 if __name__ == '__main__':
     # Threaded option to enable multiple instances for multiple user access support

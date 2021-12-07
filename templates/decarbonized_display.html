@@ -7,7 +7,33 @@
 {% endblock %}
 
 {% block content %}
-
-
-
+<div class="container">
+    <div class="page-header">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" class="mx-auto d-block" alt="logo" height="200">
+        <h1 class="page-title">Decarbonize My Meal</h1>
+    </div>
+    <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Category</th>
+            <th scope="col">Protein (g)</th>
+            <th scope="col">Calories</th>
+            <th scope="col">Serving Size</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for index, row in carbon_meal.iterrows() %}
+        <tr>
+            <th scope="row">{{ row["Recipe_Print_As_Name"] }}</th>
+            <td>{{ row["Menu_Category_Name"] }}</td>
+            <td>{{ row["Protein"] }}</td>
+            <td>{{ row["Calories"] }}</td>
+            <td>{{ row["Serving_Size"] }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      <p>Having one serving of each of the above will be a total of {{ carbon_meal["Calories"].sum() }} calories. (Don't forget about your fruits and vegetables! 🤠)</p>
+</div>
 {% endblock %}
