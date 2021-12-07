@@ -8,7 +8,8 @@ import pandas as pd
 
 app = Flask(__name__)
 
-def daily_menu_df(date):
+# Return dataframe containing menu items 
+def daily_menu_df(date, meal):
 
     # TODO: Implement auto date query
     url = "https://go.apis.huit.harvard.edu/ats/dining/v3/recipes?locationId=05&date={}".format(date)
@@ -24,9 +25,21 @@ def daily_menu_df(date):
 
     # print(response.json())
 
-    output = dataframe.loc[dataframe['Meal_Name'].str.contains("Lunch Entrees")]
+    output = dataframe.loc[dataframe['Meal_Name'].str.contains(meal)]
 
     return output
+
+def menu_grouped(date, meal):
+    menu_df = daily_menu_df(date, meal)
+    grouped = menu_df.groupby("Menu_Category_Name")
+    grouped_lists = grouped["Recipe_Print_As_Name"].apply(list).reset_index()
+
+    grouped_lists = grouped_lists.replace("eNTREES", "Entrees")
+    grouped_lists = grouped_lists.replace("HALAL", "Halal")
+
+    grouped_lists = grouped_lists.iloc[::-1]
+
+    return grouped_lists
 
 @app.route('/getmsg/', methods=['GET'])
 def respond():
@@ -71,16 +84,11 @@ def post_something():
 @app.route('/')
 def index():
 
-    menu_df = daily_menu_df("12/13/2021")
-    grouped = menu_df.groupby("Menu_Category_Name")
-    grouped_lists = grouped["Recipe_Print_As_Name"].apply(list).reset_index()
+    # Format menu DF into grouped list by dish category
+    lunch_df = menu_grouped("12/13/2021", "Lunch")
+    dinner_df = menu_grouped("12/13/2021", "Dinner")
 
-    grouped_lists = grouped_lists.replace("eNTREES", "Entrees")
-    grouped_lists = grouped_lists.replace("HALAL", "Halal")
-
-    grouped_lists = grouped_lists.iloc[::-1]
-
-    return render_template("index.html", menu=grouped_lists)
+    return render_template("index.html", lunch=lunch_df, dinner=dinner_df)
 
 @app.route("/decarbonize", methods=["GET", "POST"])
 def decarbonize():

@@ -15,8 +15,20 @@
 </div>
 
 <div class="container">
+    <div class="location-section">
+        <h2 style="text-align: center">Location: Cabot & Pforzheimer</h2>
+        <div class="d-flex justify-content-center">
+            <select class="w-25 form-select form-select-sm" aria-label=".form-select-sm example">
+                <option selected>Change location</option>
+                <option value="1">One</option>
+                <option value="2">Two</option>
+                <option value="3">Three</option>
+            </select>
+        </div>
+
+    </div>
     <div class="meal-section">
-        <h2>Carbon-Friendly Meal of the Day:</h2>
+        <h3>Carbon-Friendly Meal of the Day:</h3>
         <div class="menu-section">
             <ul class="list-group">
                 <li class="list-group-item">Cras justo odio</li>
@@ -29,16 +41,41 @@
     </div>
 
     <h2>Today's Menu:</h2>
-    {% for index, row in menu.iterrows() %}
-    <div class="menu-section">
-        <h3>{{ row["Menu_Category_Name"] }}</h3>
-        <ul class="list-group">
-            {% for item in row["Recipe_Print_As_Name"] %}
-            <li class="list-group-item">{{ item }}</li>
+
+    <nav>
+        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+            <button class="nav-link active" id="menu-lunch-tab" data-bs-toggle="tab" data-bs-target="#menu-lunch"
+                type="button" role="tab" aria-controls="menu-lunch" aria-selected="true">Lunch</button>
+            <button class="nav-link" id="menu-dinner-tab" data-bs-toggle="tab" data-bs-target="#menu-dinner"
+                type="button" role="tab" aria-controls="menu-dinner" aria-selected="false">Dinner</button>
+        </div>
+    </nav>
+    <div class="tab-content" id="nav-tabContent">
+        <div class="tab-pane fade show active" id="menu-lunch" role="tabpanel" aria-labelledby="menu-lunch-tab">
+            {% for index, row in lunch.iterrows() %}
+            <div class="menu-section">
+                <h4>{{ row["Menu_Category_Name"] }}</h4>
+                <ul class="list-group">
+                    {% for item in row["Recipe_Print_As_Name"] %}
+                    <li class="list-group-item">{{ item }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
             {% endfor %}
-        </ul>
+        </div>
+        <div class="tab-pane fade" id="menu-dinner" role="tabpanel" aria-labelledby="menu-dinner-tab">
+            {% for index, row in dinner.iterrows() %}
+            <div class="menu-section">
+                <h4>{{ row["Menu_Category_Name"] }}</h4>
+                <ul class="list-group">
+                    {% for item in row["Recipe_Print_As_Name"] %}
+                    <li class="list-group-item">{{ item }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endfor %}
+        </div>
     </div>
-    {% endfor %}
 
 
 </div>
