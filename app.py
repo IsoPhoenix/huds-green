@@ -9,18 +9,16 @@ from datetime import date
 
 app = Flask(__name__)
 
-# Global creation of current date
+# Fetch current date in MM/DD/YYYY format
 def get_date():
     current_date = date.today()
     return current_date.strftime("%m/%d/%Y")
 
-# Return dataframe containing today's menu items 
+# Return dataframe from API containing menu items for a given date, meal, location, and whether or not to obtain carbon-friendly options
 def daily_menu_df(date, meal, doCarbonFriendly, locationId):
 
     # Call HUDS menu using HUIT Dining API
     url = "https://go.apis.huit.harvard.edu/ats/dining/v3/recipes?date={}&locationId={}".format(date, locationId)
-
-    print(url)
 
     payload={}
     headers = {
@@ -29,15 +27,16 @@ def daily_menu_df(date, meal, doCarbonFriendly, locationId):
 
     response = requests.request("GET", url, headers=headers, data=payload)
 
+    # Obtain dataframe from HUDS API
     dataframe = pd.DataFrame.from_dict(response.json())
 
-    # Create dataframe of daily meals
+    # Parse dataframe for menu items pertaining to the given meal
     menu_df = dataframe.loc[dataframe['Meal_Name'].str.contains(meal, case=False)]
 
-    # Carbon friendly parsing
+    # Parse dataframe for carbon friendly menu options
     if doCarbonFriendly:
     
-        # Convert column protein to a float for comparison
+        # Convert protein column to a float for comparison
         menu_df["Protein"] = menu_df["Protein"].str[:-1]
 
         menu_df["Protein"] = pd.to_numeric(menu_df["Protein"])
@@ -47,12 +46,17 @@ def daily_menu_df(date, meal, doCarbonFriendly, locationId):
 
     return menu_df
 
-# Return dataframe of today's menu, grouped by menu category and cleaned for HTML display
+# Return a dataframe with menu items grouped by menu category
 def grouped_menu(date, meal, doCarbonFriendly, locationId):
+    
+    # Obtain daily_menu_df
     menu_df = daily_menu_df(date, meal, doCarbonFriendly, locationId)
+
+    # Group menu items by menu category
     grouped = menu_df.groupby("Menu_Category_Name")
     grouped_lists = grouped["Recipe_Print_As_Name"].apply(list).reset_index()
 
+    # Reverse df rows for clarity
     grouped_lists = grouped_lists.iloc[::-1]
 
     return grouped_lists
@@ -65,6 +69,7 @@ def vegetarian(date, meal, weight, num_meals, locationId):
 
     protein = 0
     length = 0
+
     # RDA recommends 0.36g of protein per lb of body weight
     rec_protein_intake = weight * 0.36
 
@@ -81,8 +86,6 @@ def vegetarian(date, meal, weight, num_meals, locationId):
     # Add a column for total calories from eating 1 serving of each option in df
     vgt_df["Calories"] = pd.to_numeric(vgt_df["Calories"])
     vgt_df['calorie total'] = vgt_df['Calories'].sum()
-
-    print(vgt_df)
 
     return vgt_df
 
@@ -106,8 +109,6 @@ def vegan(date, meal, weight, num_meals, locationId):
     vgn_df=menu_df.head(length)
     vgn_df["Calories"] = pd.to_numeric(vgn_df["Calories"])
     vgn_df['calorie total'] = vgn_df['Calories'].sum()
-
-    print(vgn_df)
 
     return vgn_df
 
@@ -140,8 +141,6 @@ def chicken(date, meal, weight, num_meals, locationId):
     chicken_df["Calories"] = pd.to_numeric(chicken_df["Calories"])
     chicken_df['calorie total'] = chicken_df['Calories'].sum()
 
-    print(chicken_df)
-
     return chicken_df
 
 # Get list of operating HUDS locations on the current date
@@ -157,6 +156,7 @@ def get_locations(date):
 
     response = requests.request("GET", url, headers=headers, data=payload)
 
+    # Obtain dataframe from HUDS API
     dataframe = pd.DataFrame.from_dict(response.json())
 
     # Eliminate rows with duplicate dining locations
@@ -180,6 +180,7 @@ def get_location_name(locationNumber):
 
     response = requests.request("GET", url, headers=headers, data=payload)
 
+    # Obtain dataframe from HUDS API
     dataframe = pd.DataFrame.from_dict(response.json())
 
     # Find the row in the dataframe that matches the given location number, then obtain the location name
@@ -194,7 +195,7 @@ def index():
     # Default to today's menu at Cabot and Pfoho
     selected_location = "05"
 
-    # If user changes dining locatioon
+    # Update dining location if user submitted a post request
     if request.method == "POST":
         selected_location = request.form.get("selected_location")
 
@@ -215,7 +216,7 @@ def decarbonize():
     if request.method == "GET":
         return render_template("decarbonize.html", locationList = get_locations(get_date()))
 
-    # When user submits form   
+    # Display user results upon form submission  
     else:
         # Get what meal they would like to see options for
         meal = request.form.get("meal")
