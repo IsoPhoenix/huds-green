@@ -9,10 +9,10 @@ import pandas as pd
 app = Flask(__name__)
 
 # Return dataframe containing menu items 
-def daily_menu_df(date, meal, doCarbonFriendly):
+def daily_menu_df(date, meal, doCarbonFriendly, locationId):
 
     # TODO: Implement auto date query
-    url = "https://go.apis.huit.harvard.edu/ats/dining/v3/recipes?locationId=05&date={}".format(date)
+    url = "https://go.apis.huit.harvard.edu/ats/dining/v3/recipes?date={}&locationId={}".format(date, locationId)
 
     payload={}
     headers = {
@@ -37,8 +37,8 @@ def daily_menu_df(date, meal, doCarbonFriendly):
 
     return menu_df
 
-def grouped_menu(date, meal, doCarbonFriendly):
-    menu_df = daily_menu_df(date, meal, doCarbonFriendly)
+def grouped_menu(date, meal, doCarbonFriendly, locationId):
+    menu_df = daily_menu_df(date, meal, doCarbonFriendly, locationId)
     grouped = menu_df.groupby("Menu_Category_Name")
     grouped_lists = grouped["Recipe_Print_As_Name"].apply(list).reset_index()
 
@@ -50,7 +50,7 @@ def grouped_menu(date, meal, doCarbonFriendly):
     return grouped_lists
 
 def vegetarian(date, meal):
-    menu_df = daily_menu_df(date, meal, doCarbonFriendly = True)
+    menu_df = daily_menu_df(date, meal, True, "05")
     menu_df = menu_df.loc[menu_df['Meal_Name'].str.contains(meal)]
     menu_df = menu_df.sort_values(by='Protein', ascending=False)
 
@@ -68,7 +68,7 @@ def vegetarian(date, meal):
     return vgt_df
 
 def vegan(date, meal):
-    menu_df = daily_menu_df(date, meal, doCarbonFriendly = True)
+    menu_df = daily_menu_df(date, meal, True, "05")
     menu_df = menu_df.loc[menu_df['Recipe_Web_Codes'].str.contains("VGN")]
     menu_df = menu_df.loc[menu_df['Meal_Name'].str.contains(meal)]
     menu_df = menu_df.sort_values(by='Protein', ascending=False)
@@ -87,7 +87,7 @@ def vegan(date, meal):
     return vgn_df
 
 def chicken(date, meal):
-    menu_df = daily_menu_df(date, meal, doCarbonFriendly = False)
+    menu_df = daily_menu_df(date, meal, False, "05")
     menu_df = menu_df.loc[(menu_df['Recipe_Web_Codes'].str.contains("VGT")) | (menu_df['Recipe_Print_As_Name'].str.contains("Chicken")) | (menu_df['Recipe_Print_As_Name'].str.contains("Cod")) | (menu_df['Recipe_Print_As_Name'].str.contains("Salmon"))]
     menu_df = menu_df.loc[menu_df['Meal_Name'].str.contains(meal)]
     menu_df = menu_df.sort_values(by='Protein', ascending=False)
@@ -142,15 +142,16 @@ def get_location_name(locationNumber):
 @app.route('/', methods=["GET", "POST"])
 def index():
 
-    carbon_df_lunch = grouped_menu("12/13/2021", "Lunch", True)
-    carbon_df_dinner = grouped_menu("12/13/2021", "Dinner", True)
-    lunch_df = grouped_menu("12/13/2021", "Lunch", False)
-    dinner_df = grouped_menu("12/13/2021", "Dinner", False)
-
     selected_location = "05"
 
     if request.method == "POST":
         selected_location = request.form.get("selected_location")
+
+
+    carbon_df_lunch = grouped_menu("12/13/2021", "Lunch", True, selected_location)
+    carbon_df_dinner = grouped_menu("12/13/2021", "Dinner", True, selected_location)
+    lunch_df = grouped_menu("12/13/2021", "Lunch", False, selected_location)
+    dinner_df = grouped_menu("12/13/2021", "Dinner", False, selected_location)
 
     return render_template("index.html", carbon_lunch=carbon_df_lunch, carbon_dinner=carbon_df_dinner, lunch=lunch_df, dinner=dinner_df, locationList = get_locations("12/13/2021"), currentLocation=get_location_name(selected_location))
 @app.route("/decarbonize", methods=["GET", "POST"])
