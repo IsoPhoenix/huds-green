@@ -37,6 +37,18 @@ def daily_menu_df(date, meal, doCarbonFriendly):
 
     return menu_df
 
+def grouped_menu(date, meal, doCarbonFriendly):
+    menu_df = daily_menu_df(date, meal, doCarbonFriendly)
+    grouped = menu_df.groupby("Menu_Category_Name")
+    grouped_lists = grouped["Recipe_Print_As_Name"].apply(list).reset_index()
+
+    grouped_lists = grouped_lists.replace("eNTREES", "Entrees")
+    grouped_lists = grouped_lists.replace("HALAL", "Halal")
+
+    grouped_lists = grouped_lists.iloc[::-1]
+
+    return grouped_lists
+
 def vegetarian(date, meal):
     menu_df = daily_menu_df(date, meal, doCarbonFriendly = True)
     menu_df = menu_df.loc[menu_df['Meal_Name'].str.contains(meal)]
@@ -130,10 +142,10 @@ def get_location_name(locationNumber):
 @app.route('/', methods=["GET", "POST"])
 def index():
 
-    carbon_df_lunch = daily_menu_df("12/13/2021", "Lunch", True)
-    carbon_df_dinner = daily_menu_df("12/13/2021", "Dinner", True)
-    lunch_df = daily_menu_df("12/13/2021", "Lunch", False)
-    dinner_df = daily_menu_df("12/13/2021", "Dinner", False)
+    carbon_df_lunch = grouped_menu("12/13/2021", "Lunch", True)
+    carbon_df_dinner = grouped_menu("12/13/2021", "Dinner", True)
+    lunch_df = grouped_menu("12/13/2021", "Lunch", False)
+    dinner_df = grouped_menu("12/13/2021", "Dinner", False)
 
     selected_location = "05"
 
