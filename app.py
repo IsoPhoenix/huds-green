@@ -144,7 +144,7 @@ def chicken(date, meal, weight, num_meals, locationId):
 
     return chicken_df
 
-# Get menus for each HUDS dining hall based on DATE
+# Get list of operating HUDS locations on the current date
 def get_locations(date):
 
     # Call HUIT Dining API
@@ -159,13 +159,15 @@ def get_locations(date):
 
     dataframe = pd.DataFrame.from_dict(response.json())
 
-    # Create dataframe grouped by dining location
-    grouped = dataframe.groupby("Location_Name")
-    grouped_lists = grouped["Location_Number"].apply(list).reset_index()
+    # Eliminate rows with duplicate dining locations
+    unique_locations = dataframe.drop_duplicates(subset=['Location_Name'])
 
-    return grouped_lists
+    # Obtain only Location_Name and Location_Number columns and alphabetize
+    trimmed = unique_locations[['Location_Name', 'Location_Number']].sort_values(by='Location_Name')
 
-# Get menus for each HUDS dining hall based on LOCATION
+    return trimmed
+
+# Get location name of HUDS dining hall based on LocationId
 def get_location_name(locationNumber):
 
     # Call HUIT Dining API
@@ -180,10 +182,10 @@ def get_location_name(locationNumber):
 
     dataframe = pd.DataFrame.from_dict(response.json())
 
-    # Return only the menu for a given dining location
-    row_match = dataframe.loc[dataframe['location_number'] == locationNumber, "location_name"].values[0]
+    # Find the row in the dataframe that matches the given location number, then obtain the location name
+    location_name = dataframe.loc[dataframe['location_number'] == locationNumber, "location_name"].values[0]
 
-    return row_match
+    return location_name
 
 # Home page
 @app.route('/', methods=["GET", "POST"])
