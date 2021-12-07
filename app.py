@@ -37,9 +37,9 @@ def daily_menu_df(date, meal, doCarbonFriendly):
 
     return menu_df
 
-def vegetarian():
-    menu_df = carbon_friendly_menu("12/13/2021")
-    menu_df = menu_df.loc[menu_df['Meal_Name'].str.contains("Lunch Entrees")]
+def vegetarian(date, meal):
+    menu_df = daily_menu_df(date, meal, doCarbonFriendly = True)
+    menu_df = menu_df.loc[menu_df['Meal_Name'].str.contains(meal)]
     menu_df = menu_df.sort_values(by='Protein', ascending=False)
 
     protein = 0
@@ -55,10 +55,29 @@ def vegetarian():
 
     return vgt_df
 
-def vegan():
-    menu_df = carbon_friendly_menu("12/13/2021")
+def vegan(date, meal):
+    menu_df = daily_menu_df(date, meal, doCarbonFriendly = True)
     menu_df = menu_df.loc[menu_df['Recipe_Web_Codes'].str.contains("VGN")]
-    menu_df = menu_df.loc[menu_df['Meal_Name'].str.contains("Lunch Entrees")]
+    menu_df = menu_df.loc[menu_df['Meal_Name'].str.contains(meal)]
+    menu_df = menu_df.sort_values(by='Protein', ascending=False)
+
+    protein = 0
+    length = 0
+    for index, row in menu_df.iterrows():
+        while protein < 50 / 2:
+           protein = protein + pd.to_numeric(row['Protein'])
+           length = length + 1
+
+    vgn_df=menu_df.head(length)
+    vgn_df["Calories"] = pd.to_numeric(vgn_df["Calories"])
+    vgn_df['calorie total'] = vgn_df['Calories'].sum()
+
+    return vgn_df
+
+def chicken(date, meal):
+    menu_df = daily_menu_df(date, meal, doCarbonFriendly = False)
+    menu_df = menu_df.loc[(menu_df['Recipe_Web_Codes'].str.contains("VGT")) | (menu_df['Recipe_Print_As_Name'].str.contains("Chicken")) | (menu_df['Recipe_Print_As_Name'].str.contains("Cod")) | (menu_df['Recipe_Print_As_Name'].str.contains("Salmon"))]
+    menu_df = menu_df.loc[menu_df['Meal_Name'].str.contains(meal)]
     menu_df = menu_df.sort_values(by='Protein', ascending=False)
 
     protein = 0
