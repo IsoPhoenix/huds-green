@@ -49,15 +49,16 @@ def grouped_menu(date, meal, doCarbonFriendly, locationId):
 
     return grouped_lists
 
-def vegetarian(date, meal):
+def vegetarian(date, meal, weight, num_meals):
     menu_df = daily_menu_df(date, meal, True, "05")
     menu_df = menu_df.loc[menu_df['Meal_Name'].str.contains(meal)]
     menu_df = menu_df.sort_values(by='Protein', ascending=False)
 
     protein = 0
     length = 0
+    rec_protein_intake = weight * 0.36
     for index, row in menu_df.iterrows():
-        while protein < 50 / 2:
+        while protein < rec_protein_intake / num_meals:
            protein = protein + pd.to_numeric(row['Protein'])
            length = length + 1
 
@@ -67,7 +68,7 @@ def vegetarian(date, meal):
 
     return vgt_df
 
-def vegan(date, meal):
+def vegan(date, meal, weight, num_meals):
     menu_df = daily_menu_df(date, meal, True, "05")
     menu_df = menu_df.loc[menu_df['Recipe_Web_Codes'].str.contains("VGN")]
     menu_df = menu_df.loc[menu_df['Meal_Name'].str.contains(meal)]
@@ -75,8 +76,9 @@ def vegan(date, meal):
 
     protein = 0
     length = 0
+    rec_protein_intake = weight * 0.36
     for index, row in menu_df.iterrows():
-        while protein < 50 / 2:
+        while protein < rec_protein_intake / num_meals:
            protein = protein + pd.to_numeric(row['Protein'])
            length = length + 1
 
@@ -86,7 +88,7 @@ def vegan(date, meal):
 
     return vgn_df
 
-def chicken(date, meal):
+def chicken(date, meal, weight, num_meals):
     menu_df = daily_menu_df(date, meal, False, "05")
     menu_df = menu_df.loc[(menu_df['Recipe_Web_Codes'].str.contains("VGT")) | (menu_df['Recipe_Print_As_Name'].str.contains("Chicken")) | (menu_df['Recipe_Print_As_Name'].str.contains("Cod")) | (menu_df['Recipe_Print_As_Name'].str.contains("Salmon"))]
     menu_df = menu_df.loc[menu_df['Meal_Name'].str.contains(meal)]
@@ -94,8 +96,9 @@ def chicken(date, meal):
 
     protein = 0
     length = 0
+    rec_protein_intake = weight * 0.36
     for index, row in menu_df.iterrows():
-        while protein < 50 / 2:
+        while protein < rec_protein_intake / num_meals:
            protein = protein + pd.to_numeric(row['Protein'])
            length = length + 1
 
@@ -154,16 +157,22 @@ def index():
     dinner_df = grouped_menu("12/13/2021", "Dinner", False, selected_location)
 
     return render_template("index.html", carbon_lunch=carbon_df_lunch, carbon_dinner=carbon_df_dinner, lunch=lunch_df, dinner=dinner_df, locationList = get_locations("12/13/2021"), currentLocation=get_location_name(selected_location))
+
 @app.route("/decarbonize", methods=["GET", "POST"])
 def decarbonize():
     if request.method == "GET":
         return render_template("decarbonize.html")
     else:
         # Get recommended protein intake
+        meal = request.form.get("meal")
         weight = request.form.get("weight")
-        rec_protein_intake = 0.36 * weight
+        num_meals = request.form.get("mealCount")
 
-        return redirect("/")
+        if request.form.get("preferences") ==
+            vegetarian("12/13/2021", meal, weight, num_meals)
+
+
+        return render_template("decarbonized_display.html")
 
 if __name__ == '__main__':
     # Threaded option to enable multiple instances for multiple user access support
