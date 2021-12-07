@@ -9,7 +9,7 @@ import pandas as pd
 app = Flask(__name__)
 
 # Return dataframe containing menu items 
-def daily_menu_df(date, meal):
+def daily_menu_df(date, meal, doCarbonFriendly):
 
     # TODO: Implement auto date query
     url = "https://go.apis.huit.harvard.edu/ats/dining/v3/recipes?locationId=05&date={}".format(date)
@@ -25,54 +25,17 @@ def daily_menu_df(date, meal):
 
     # print(response.json())
 
-    output = dataframe.loc[dataframe['Meal_Name'].str.contains(meal)]
+    menu_df = dataframe.loc[dataframe['Meal_Name'].str.contains(meal)]
 
-    return output
+    # Carbon friendly parsing
+    if doCarbonFriendly:
+        menu_df["Protein"] = menu_df["Protein"].str[:-1]
 
-def menu_grouped(date, meal):
-    menu_df = daily_menu_df(date, meal)
-    grouped = menu_df.groupby("Menu_Category_Name")
-    grouped_lists = grouped["Recipe_Print_As_Name"].apply(list).reset_index()
+        menu_df["Protein"] = pd.to_numeric(menu_df["Protein"])
 
-    grouped_lists = grouped_lists.replace("eNTREES", "Entrees")
-    grouped_lists = grouped_lists.replace("HALAL", "Halal")
-
-    grouped_lists = grouped_lists.iloc[::-1]
-
-    return grouped_lists
-
-def carbon_friendly_menu(date):
-    # TODO: Implement auto date query
-    url = "https://go.apis.huit.harvard.edu/ats/dining/v3/recipes?locationId=05&date={}".format(date)
-
-    payload={}
-    headers = {
-        'x-api-key': '8yikrfDnvJGbKKlz3pVPvAlANGPkTGza'
-    }
-
-    response = requests.request("GET", url, headers=headers, data=payload)
-
-    menu_df = pd.DataFrame.from_dict(response.json())
-
-    menu_df["Protein"] = menu_df["Protein"].str[:-1]
-
-    menu_df["Protein"] = pd.to_numeric(menu_df["Protein"])
-
-    menu_df = menu_df.loc[(menu_df['Recipe_Web_Codes'].str.contains("VGT")) & (menu_df["Protein"] >= 5)]
+        menu_df = menu_df.loc[(menu_df['Recipe_Web_Codes'].str.contains("VGT")) & (menu_df["Protein"] >= 5)]
 
     return menu_df
-
-def grouped_carbon_menu(date)
-    menu_df = carbon_friendly_menu(date)
-    grouped = menu_df.groupby("Menu_Category_Name")
-    grouped_lists = grouped["Recipe_Print_As_Name"].apply(list).reset_index()
-
-    grouped_lists = grouped_lists.replace("eNTREES", "Entrees")
-    grouped_lists = grouped_lists.replace("HALAL", "Halal")
-
-    grouped_lists = grouped_lists.iloc[::-1]
-
-    return grouped_lists
 
 def vegetarian():
     menu_df = carbon_friendly_menu("12/13/2021")
@@ -148,19 +111,17 @@ def get_location_name(locationNumber):
 @app.route('/', methods=["GET", "POST"])
 def index():
 
-    if request.method == "GET":
-        # Format menu DF into grouped list by dish category
-        carbon_df = grouped_carbon_menu("12/13/2021")
-        lunch_df = menu_grouped("12/13/2021", "Lunch")
-        dinner_df = menu_grouped("12/13/2021", "Dinner")
+    carbon_df_lunch = daily_menu_df("12/13/2021", "Lunch", True)
+    carbon_df_dinner = daily_menu_df("12/13/2021", "Dinner", True)
+    lunch_df = daily_menu_df("12/13/2021", "Lunch", False)
+    dinner_df = daily_menu_df("12/13/2021", "Dinner", False)
 
-        return render_template("index.html", carbon=carbon_df, lunch=lunch_df, dinner=dinner_df, locationList = get_locations("12/13/2021"), currentLocation=get_location_name("05"))
-    else:
-        carbon_df = grouped_carbon_menu("12/13/2021")
-        lunch_df = menu_grouped("12/13/2021", "Lunch")
-        dinner_df = menu_grouped("12/13/2021", "Dinner")
+    selected_location = "05"
 
-        return render_template("index.html", carbon=carbon_df, lunch=lunch_df, dinner=dinner_df, locationList = get_locations("12/13/2021"), currentLocation=get_location_name(request.form.get("selected_location")))
+    if request.method == "POST":
+        selected_location = request.form.get("selected_location")
+
+    return render_template("index.html", carbon_lunch=carbon_df_lunch, carbon_dinner=carbon_df_dinner, lunch=lunch_df, dinner=dinner_df, locationList = get_locations("12/13/2021"), currentLocation=get_location_name(selected_location))
 @app.route("/decarbonize", methods=["GET", "POST"])
 def decarbonize():
     if request.method == "GET":
