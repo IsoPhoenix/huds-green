@@ -20,6 +20,8 @@ def daily_menu_df(date, meal, doCarbonFriendly, locationId):
     # Call HUDS menu using HUIT Dining API
     url = "https://go.apis.huit.harvard.edu/ats/dining/v3/recipes?date={}&locationId={}".format(date, locationId)
 
+    print(url)
+
     payload={}
     headers = {
         'x-api-key': '8yikrfDnvJGbKKlz3pVPvAlANGPkTGza'
@@ -51,9 +53,6 @@ def grouped_menu(date, meal, doCarbonFriendly, locationId):
     grouped = menu_df.groupby("Menu_Category_Name")
     grouped_lists = grouped["Recipe_Print_As_Name"].apply(list).reset_index()
 
-    grouped_lists = grouped_lists.replace("eNTREES", "Entrees")
-    grouped_lists = grouped_lists.replace("HALAL", "Halal")
-
     grouped_lists = grouped_lists.iloc[::-1]
 
     return grouped_lists
@@ -83,9 +82,7 @@ def vegetarian(date, meal, weight, num_meals, locationId):
     vgt_df["Calories"] = pd.to_numeric(vgt_df["Calories"])
     vgt_df['calorie total'] = vgt_df['Calories'].sum()
 
-    # Further clean df for HTML display
-    vgt_df = vgt_df.replace("eNTREES", "Entrees")
-    vgt_df = vgt_df.replace("HALAL", "Halal")
+    print(vgt_df)
 
     return vgt_df
 
@@ -110,8 +107,7 @@ def vegan(date, meal, weight, num_meals, locationId):
     vgn_df["Calories"] = pd.to_numeric(vgn_df["Calories"])
     vgn_df['calorie total'] = vgn_df['Calories'].sum()
 
-    vgn_df = vgn_df.replace("eNTREES", "Entrees")
-    vgn_df = vgn_df.replace("HALAL", "Halal")
+    print(vgn_df)
 
     return vgn_df
 
@@ -144,12 +140,11 @@ def chicken(date, meal, weight, num_meals, locationId):
     chicken_df["Calories"] = pd.to_numeric(chicken_df["Calories"])
     chicken_df['calorie total'] = chicken_df['Calories'].sum()
 
-    chicken_df = chicken_df.replace("eNTREES", "Entrees")
-    chicken_df = chicken_df.replace("HALAL", "Halal")
+    print(chicken_df)
 
     return chicken_df
 
-# Get menus for each HUDS dining hall based on DATE
+# Get list of operating HUDS locations on the current date
 def get_locations(date):
 
     # Call HUIT Dining API
@@ -164,13 +159,15 @@ def get_locations(date):
 
     dataframe = pd.DataFrame.from_dict(response.json())
 
-    # Create dataframe grouped by dining location
-    grouped = dataframe.groupby("Location_Name")
-    grouped_lists = grouped["Location_Number"].apply(list).reset_index()
+    # Eliminate rows with duplicate dining locations
+    unique_locations = dataframe.drop_duplicates(subset=['Location_Name'])
 
-    return grouped_lists
+    # Obtain only Location_Name and Location_Number columns and alphabetize
+    trimmed = unique_locations[['Location_Name', 'Location_Number']].sort_values(by='Location_Name')
 
-# Get menus for each HUDS dining hall based on LOCATION
+    return trimmed
+
+# Get location name of HUDS dining hall based on LocationId
 def get_location_name(locationNumber):
 
     # Call HUIT Dining API
@@ -185,10 +182,10 @@ def get_location_name(locationNumber):
 
     dataframe = pd.DataFrame.from_dict(response.json())
 
-    # Return only the menu for a given dining location
-    row_match = dataframe.loc[dataframe['location_number'] == locationNumber, "location_name"].values[0]
+    # Find the row in the dataframe that matches the given location number, then obtain the location name
+    location_name = dataframe.loc[dataframe['location_number'] == locationNumber, "location_name"].values[0]
 
-    return row_match
+    return location_name
 
 # Home page
 @app.route('/', methods=["GET", "POST"])
