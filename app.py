@@ -161,7 +161,7 @@ def index():
 @app.route("/decarbonize", methods=["GET", "POST"])
 def decarbonize():
     if request.method == "GET":
-        return render_template("decarbonize.html")
+        return render_template("decarbonize.html", locationList = get_locations("12/13/2021"))
     else:
         # Get recommended protein intake
         meal = request.form.get("meal")
