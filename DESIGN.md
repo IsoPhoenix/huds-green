@@ -7,7 +7,7 @@ HOW WE GENERATE THE HOME PAGE:
 
 
 HOW WE GENERATE RECOMMENDED MEALS: 
-The Decarbonize My Meal page uses a form to collect user preferences, which are then input into a Python script. Specifically, we call the daily HUDS menu using the HUIT Dining API, which creates a dataframe of today's menu items. We specifically use the variable Serve_Date in tandem with the Python package datetime to query for today's menu only. With user input, we are also able to further filter down the data by dining location.
+The Decarbonize My Meal page uses a form to collect user preferences, which are then input into a Python script. Specifically, we call the daily HUDS menu using the HUIT Dining API, which creates a dataframe of today's menu items. We also use the Pandas package extensively throughout app.py in order to do this data analysis. We also specifically use the variable Serve_Date in tandem with the Python package datetime to query for today's menu only. With user input, we are also able to further filter down the data by dining location.
 
 The Decarbonize My Meal generates 3 types of options using 3 functions: vegetarian(), vegan(), and chicken():
 
