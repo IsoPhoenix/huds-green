@@ -6,12 +6,14 @@
 {{ super() }}
 {% endblock %}
 
+<!--Displays recommended meal on Decarbonize My Meal-->
 {% block content %}
 <div class="container">
     <div class="page-header">
         <img src="{{ url_for('static', filename='img/logo.png') }}" class="mx-auto d-block" alt="logo" height="200">
         <h1 class="page-title">Decarbonize My Meal</h1>
     </div>
+    <!--Display menu item, its category, amount of protein, and amount of calories for 1 serving-->
     <table class="table">
         <thead>
           <tr>
@@ -34,6 +36,7 @@
         {% endfor %}
         </tbody>
       </table>
+      <!--Share total calorie count so users know how much of other stuff they should eat-->
       <p>Having one serving of each of the above will be a total of {{ carbon_meal["Calories"].sum() }} calories. (Don't forget about your fruits and vegetables! 🤠)</p>
 </div>
 {% endblock %}
