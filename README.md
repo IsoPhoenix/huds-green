@@ -19,7 +19,7 @@ Finally, visit the `About` page to learn more about carbon-friendly eating, the 
 - Activate the virtual environment by running `source venv/bin/activate`.
 - While in your virtual environment, use `pip install <MODULE-NAME-HERE>` to install all the necessary packages. This includes `Flask`, `pandas`, `requests`, `gunicorn`, and `DateTime`. You can find a comprehensive list of dependencies in `requirements.txt`.
 - To run the app, use `flask run`.
-- To run the app in development mode, first run `chmod +x bin/server-debug.sh`. Then, you can run `bin/server-debug.sh` inside the project folder, which acts as a shortcut to run the webapp in development mode.
+- To run the app in development mode, first run `chmod +x bin/server-debug.sh` to give run permission to the `server-debug.sh` script. Then, you can run `bin/server-debug.sh` inside the project folder, which acts as a shortcut to run the webapp in development mode.
 
 ## Files/folders explained
 
