@@ -6,6 +6,7 @@ from flask import Flask, request, jsonify, render_template, redirect
 import requests
 import pandas as pd
 from datetime import date
+import string
 
 app = Flask(__name__)
 
@@ -38,6 +39,10 @@ def daily_menu_df(date, meal, doCarbonFriendly, locationId):
 
     # Parse dataframe for menu items pertaining to the given meal
     menu_df = dataframe.loc[dataframe['Meal_Name'].str.contains(meal, case=False)]
+
+    # Enforce title capitalization on display strings (to counteract typos in HUDS database)
+    menu_df["Recipe_Print_As_Name"] = menu_df["Recipe_Print_As_Name"].apply(lambda x: string.capwords(x))
+    menu_df["Menu_Category_Name"] = menu_df["Menu_Category_Name"].apply(lambda x: string.capwords(x))
 
     # Parse dataframe for carbon friendly menu options
     if doCarbonFriendly:

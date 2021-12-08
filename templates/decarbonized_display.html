@@ -27,8 +27,8 @@
     <tbody>
       {% for index, row in carbon_meal.iterrows() %}
       <tr>
-        <th scope="row">{{ row["Recipe_Print_As_Name"].title() }}</th>
-        <td>{{ row["Menu_Category_Name"].title() }}</td>
+        <th scope="row">{{ row["Recipe_Print_As_Name"] }}</th>
+        <td>{{ row["Menu_Category_Name"] }}</td>
         <td>{{ row["Protein"] }}</td>
         <td>{{ row["Calories"] }}</td>
         <td>{{ row["Serving_Size"] }}</td>
