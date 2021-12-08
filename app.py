@@ -20,6 +20,7 @@ def daily_menu_df(date, meal, doCarbonFriendly, locationId):
     # Call HUDS menu using HUIT Dining API
     url = "https://go.apis.huit.harvard.edu/ats/dining/v3/recipes?date={}&locationId={}".format(date, locationId)
 
+    # Print API call in console for easy debugging in Deepnote
     print(url)
 
     payload={}
@@ -31,6 +32,9 @@ def daily_menu_df(date, meal, doCarbonFriendly, locationId):
 
     # Obtain dataframe from HUDS API
     dataframe = pd.DataFrame.from_dict(response.json())
+
+    # Parse out any entries with blank recipe names
+    dataframe = dataframe[dataframe.Recipe_Print_As_Name != ""]
 
     # Parse dataframe for menu items pertaining to the given meal
     menu_df = dataframe.loc[dataframe['Meal_Name'].str.contains(meal, case=False)]
