@@ -20,6 +20,8 @@ def daily_menu_df(date, meal, doCarbonFriendly, locationId):
     # Call HUDS menu using HUIT Dining API
     url = "https://go.apis.huit.harvard.edu/ats/dining/v3/recipes?date={}&locationId={}".format(date, locationId)
 
+    print(url)
+
     payload={}
     headers = {
         'x-api-key': '8yikrfDnvJGbKKlz3pVPvAlANGPkTGza'

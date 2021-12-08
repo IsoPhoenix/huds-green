@@ -44,7 +44,7 @@
                 aria-label="Default select example">
                 <!-- Generate select options from the locationList df containing the list of active HUDS locations -->
                 {% for index, row in locationList.iterrows() %}
-                <option value="{{ row['Location_Number'][0] }}">{{ row["Location_Name"] }}</option>
+                <option value="{{ row['Location_Number'] }}">{{ row["Location_Name"] }}</option>
                 {% endfor %}
             </select>
         </div>
