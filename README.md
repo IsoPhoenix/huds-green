@@ -14,8 +14,8 @@ Finally, visit the `About` page to learn more about carbon-friendly eating, the 
 
 ## Running the app locally
 
-- Clone the GitHub repo to your computer. You can use `git clone https://github.com/IsoPhoenix/huds-green.git`. Alternatively, if you are using the zip file from Gradescope, you can unzip the file, `cd` into the project directory, and skip straight to the `source venv/bin/activate` step.
-- HUDS Green is a Flask webapp. We recommend using a Python virtual environment for package management if you plan on running/developing the app locally. To set up a virtual environment, `cd` into your project folder and run `python -m venv venv/`. If you get a `No module named venv` error, try `python3 -m venv venv/`.
+- Clone the GitHub repo to your computer. You can use `git clone https://github.com/IsoPhoenix/huds-green.git`.
+- HUDS Green is a Flask webapp. We recommend using a Python virtual environment for package management if you plan on running/developing the app locally. To set up a virtual environment, `cd` into your project folder and run `python -m venv venv/`. If you get a `No module named venv` error, try `python3 -m venv venv/`. Also ensure your python is updated to the latest version (python 3).
 - Activate the virtual environment by running `source venv/bin/activate`.
 - While in your virtual environment, use `pip install <MODULE-NAME-HERE>` to install all the necessary packages. This includes `Flask`, `pandas`, `requests`, `gunicorn`, and `DateTime`. You can find a comprehensive list of dependencies in `requirements.txt`.
 - To run the app, use `flask run`.
