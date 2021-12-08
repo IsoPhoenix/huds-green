@@ -1,5 +1,8 @@
 # huds-green
 
+## Video Tour
+Video tour can be viewed here: https://youtu.be/U-3ootcoXm0 
+
 ## Accessing and using the app
 
 Welcome to HUDS Green! HUDS Green lists carbon-friendly options for the day and suggests personalized carbon-friendly meals given your dietary needs.
