@@ -34,6 +34,10 @@ def daily_menu_df(date, meal, doCarbonFriendly, locationId):
     # Obtain dataframe from HUDS API
     dataframe = pd.DataFrame.from_dict(response.json())
 
+    # Catch empty API response
+    if dataframe.empty:
+        return
+
     # Parse out any entries with blank recipe names
     dataframe = dataframe[dataframe.Recipe_Print_As_Name != ""]
 
@@ -62,6 +66,10 @@ def grouped_menu(date, meal, doCarbonFriendly, locationId):
     
     # Obtain daily_menu_df
     menu_df = daily_menu_df(date, meal, doCarbonFriendly, locationId)
+    
+    # Catch empty API response
+    if menu_df == None:
+        return
 
     # Group menu items by menu category
     grouped = menu_df.groupby("Menu_Category_Name")
@@ -75,6 +83,12 @@ def grouped_menu(date, meal, doCarbonFriendly, locationId):
 # Return dataframe of options for vegetarians or people willing to eat vegetarian with sufficient protein
 def vegetarian(date, meal, weight, num_meals, locationId):
     menu_df = daily_menu_df(date, meal, True, locationId)
+
+    # Catch empty API response
+    if menu_df == None:
+        return
+
+
     menu_df = menu_df.loc[menu_df['Meal_Name'].str.contains(meal, case=False)]
     menu_df = menu_df.sort_values(by='Protein', ascending=False)
 
@@ -104,6 +118,10 @@ def vegetarian(date, meal, weight, num_meals, locationId):
 def vegan(date, meal, weight, num_meals, locationId):
     menu_df = daily_menu_df(date, meal, True, locationId)
 
+    # Catch empty API response
+    if menu_df == None:
+        return
+
     # Function is similar to VGT fcn, but parses for only vegan options
     menu_df = menu_df.loc[menu_df['Recipe_Web_Codes'].str.contains("VGN")]
     menu_df = menu_df.loc[menu_df['Meal_Name'].str.contains(meal, case=False)]
@@ -126,6 +144,10 @@ def vegan(date, meal, weight, num_meals, locationId):
 # Return dataframe of options for people who want to eat meat, but are willing to give up red meat
 def chicken(date, meal, weight, num_meals, locationId):
     menu_df = daily_menu_df(date, meal, False, locationId)
+
+    # Catch empty API response
+    if menu_df == None:
+        return
 
     # Since doCarbonFriendly is false, convert Protein column to float for comparison
     menu_df["Protein"] = menu_df["Protein"].str[:-1]
@@ -170,6 +192,10 @@ def get_locations(date):
     # Obtain dataframe from HUDS API
     dataframe = pd.DataFrame.from_dict(response.json())
 
+    # Catch empty API response
+    if dataframe.empty:
+        return
+
     # Eliminate rows with duplicate dining locations
     unique_locations = dataframe.drop_duplicates(subset=['Location_Name'])
 
@@ -204,6 +230,7 @@ def get_location_name(locationNumber):
 def index():
 
     # Default to today's menu at Cabot and Pfoho
+    # TODO: Update this to select the first location in location list in case Cabot and Pfoho aren't currently running.
     selected_location = "05"
 
     # Update dining location if user submitted a post request

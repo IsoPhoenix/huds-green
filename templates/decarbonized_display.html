@@ -14,6 +14,7 @@
     <h1 class="page-title">Decarbonize My Meal</h1>
   </div>
   <!--Display menu item, its category, amount of protein, and amount of calories for 1 serving-->
+  {% if carbon_lunch != None %}
   <table class="table">
     <thead>
       <tr>
@@ -40,5 +41,11 @@
   <p style="text-align: center">Having one serving of each of the above will be a total of {{
     carbon_meal["Calories"].sum() }} calories. (Don't
     forget about your fruits and vegetables! 🤠)</p>
+  {% else %}
+  <p class="error-message">no locations</p>
+  {% endif %}
+
+
+
 </div>
 {% endblock %}
